@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="card-title-row">
+    <h2>Collect Fee</h2>
+    <div class="muted">Calendar Year: <b>{{ current_year }}</b> &nbsp;|&nbsp; Active Academic Year: <b>{{ active_year }}</b></div>
+  </div>
+
+  <form method="post" action="{{ url_for('receipts.new_receipt') }}" id="receiptForm">
+    <div class="grid-3">
+      <div>
+        <label>Student</label>
+        <select name="student_id" required>
+          <option value="">-- Select Student --</option>
+          {% for s in students %}
+            <option value="{{ s.id }}">{{ s.admission_no }} — {{ s.name }} ({{ s.class_name }} {{ s.section }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Mode</label>
+        <select name="mode">
+          <option>Cash</option>
+          <option>UPI</option>
+          <option>NEFT</option>
+          <option>CHEQUE</option>
+        </select>
+      </div>
+      <div>
+        <label>Receipt No</label>
+        <input type="text" name="receipt_no" placeholder="Auto if not set (unless manual numbering enabled)">
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div class="card-title-row"><h3>Amounts by Fee Type</h3></div>
+      <div class="grid-3">
+        {% for ft in fee_types %}
+          <div>
+            <label>{{ ft.name }}</label>
+            <input class="amt" type="number" step="0.01" name="amt_{{ ft.id }}" value="0">
+          </div>
+        {% endfor %}
+      </div>
+      <div class="toolbar" style="margin-top:10px">
+        <div><b>Total:</b> ₹ <span id="totalSpan">0.00</span></div>
+        <div class="spacer"></div>
+        <input type="text" name="notes" class="grow" placeholder="Notes (optional)">
+        <button class="btn">Save &amp; Print</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  const inputs = document.querySelectorAll('.amt');
+  const span = document.getElementById('totalSpan');
+  function recalc() {
+    let total = 0;
+    inputs.forEach(i => { const v = parseFloat(i.value); if (!isNaN(v)) total += v; });
+    span.textContent = total.toFixed(2);
+  }
+  inputs.forEach(i => i.addEventListener('input', recalc));
+  recalc();
+})();
+</script>
+{% endblock %}

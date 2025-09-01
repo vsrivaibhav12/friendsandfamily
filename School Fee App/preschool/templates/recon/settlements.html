@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>UPI Settlements (PhonePe)</h2>
+  <form method="post" action="{{ url_for('recon.settlements_new') }}" class="grid-3">
+    <div><label>Start Date</label><input type="date" name="start" required></div>
+    <div><label>Days Grouped</label><input type="number" name="days" value="2" min="1" required></div>
+    <div><label>Fee Rule</label>
+      <select name="rule_id" required>
+        {% for r in rules %}<option value="{{ r.id }}">{{ r.name }} ({{ r.percent or 0 }}% + {{ r.flat or 0 }})</option>{% endfor %}
+      </select>
+    </div>
+    <button class="btn primary">Create Window</button>
+  </form>
+</div>
+
+<h3>Recent Batches</h3>
+<table class="table">
+  <thead><tr><th>Window</th><th>Receipts Total</th><th>Charges</th><th>Expected Net</th><th>Bank Mapped</th><th>Variance</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for b in batches %}
+    <tr>
+      <td>{{ b.start_date }} → {{ b.end_date }}</td>
+      <td>₹ {{ '%.2f'|format(b.receipts_total) }}</td>
+      <td>₹ {{ '%.2f'|format(b.charges) }}</td>
+      <td>₹ {{ '%.2f'|format(b.expected_net) }}</td>
+      <td>₹ {{ '%.2f'|format(b.bank_net) }}</td>
+      <td>₹ {{ '%.2f'|format(b.variance) }}</td>
+      <td>{{ b.status }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

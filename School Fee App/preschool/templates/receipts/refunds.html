@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>New Refund</h2>
+  <form method="post" class="grid-4">
+    <div><label>Student</label>
+      <select name="student_id">
+        {% for s in students %}
+          <option value="{{ s.id }}">{{ s.name }} (₹ {{ '%.2f'|format(s.credit_balance or 0) }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div><label>Amount</label><input type="number" name="amount" step="0.01" required></div>
+    <div><label>Mode</label>
+      <select name="mode"><option>Cash</option><option>UPI</option><option>NEFT</option><option>CHEQUE</option></select>
+    </div>
+    <div><label>Date</label><input type="date" name="date"></div>
+    <div class="grid-col-span-4"><label>Fee Type (optional)</label>
+      <select name="fee_type_id">
+        <option value="">--</option>
+        {% for t in fee_types %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="grid-col-span-4"><label>Reason</label><input name="reason" placeholder="Reason for refund"></div>
+    <button class="btn primary">Save</button>
+  </form>
+</div>
+
+<h3>Recent Refunds</h3>
+<table class="table">
+  <thead><tr><th>No</th><th>Date</th><th>Student</th><th>Mode</th><th>Amount</th><th>Reason</th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.refund_no }}</td>
+      <td>{{ r.created_at.strftime('%Y-%m-%d') }}</td>
+      <td>{{ r.student.name }}</td>
+      <td>{{ r.mode }}</td>
+      <td>₹ {{ '%.2f'|format(r.amount) }}</td>
+      <td>{{ r.reason }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

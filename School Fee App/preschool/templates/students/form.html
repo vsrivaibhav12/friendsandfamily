@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>{{ 'Edit' if s else 'New' }} Student</h2>
+  <form method="post">
+    <div class="grid-4">
+      <div><label>Admission No</label><input name="admission_no" value="{{ s.admission_no if s else '' }}" required></div>
+      <div><label>Name</label><input name="name" value="{{ s.name if s else '' }}" required></div>
+      <div><label>Class</label><input name="class_name" value="{{ s.class_name if s else '' }}"></div>
+      <div><label>Section</label><input name="section" value="{{ s.section if s else '' }}"></div>
+      <div><label>Parent</label><input name="parent_name" value="{{ s.parent_name if s else '' }}"></div>
+      <div><label>Phone</label><input name="phone" value="{{ s.phone if s else '' }}"></div>
+      <div><label>Email</label><input name="email" value="{{ s.email if s else '' }}"></div>
+      <div><label>Discontinued</label><label class="switch"><input type="checkbox" name="discontinued" {% if s and s.discontinued %}checked{% endif %}><span class="slider"></span></label></div>
+      <div><label>Collectible after discontinuation</label><label class="switch"><input type="checkbox" name="collectible_after_discontinue" {% if s and s.collectible_after_discontinue %}checked{% endif %}><span class="slider"></span></label></div>
+      <div><label>Discontinued Date</label><input type="date" name="discontinued_date" value="{% if s and s.discontinued_date %}{{ s.discontinued_date }}{% endif %}"></div>
+    </div>
+    <button class="btn primary">Save</button>
+    <a class="btn" href="{{ url_for('students.list_students') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

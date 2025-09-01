@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="card-title-row">
+    <h2>{{ title }}</h2>
+    <div class="row-actions">
+      <a class="btn" href="{{ url_for('reports.discontinued_csv', kind=kind) }}">Export CSV</a>
+      <button class="btn" onclick="window.print()">Print</button>
+    </div>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Adm No</th>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Phone</th>
+        <th style="text-align:right">Receivable</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s,bal in rows %}
+      <tr>
+        <td>{{ s.admission_no }}</td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.class_name }} {{ s.section }}</td>
+        <td>{{ s.phone }}</td>
+        <td style="text-align:right">₹ {{ '%.2f'|format(bal) }}</td>
+      </tr>
+      {% endfor %}
+      {% if rows|length == 0 %}
+      <tr><td colspan="5" class="muted">No students in this list.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

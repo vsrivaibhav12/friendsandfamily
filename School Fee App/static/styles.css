@@ -1,0 +1,80 @@
+/* static/styles.css – clean, modern UI */
+:root{
+  --sidebar: 240px;
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#e5e7eb;
+  --accent:#4f46e5;
+  --accent-2:#8b5cf6;
+  --success:#16a34a;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --radius:14px;
+  --shadow:0 6px 18px rgba(17,24,39,.06);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:#c7d2fe;box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow)}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:#fff;color:var(--accent);border:1px solid #c7d2fe}
+.btn.small{padding:6px 10px;border-radius:8px}
+
+.sidebar{position:fixed;top:0;bottom:0;left:0;width:var(--sidebar);background:#fff;border-right:1px solid var(--border);padding:16px 12px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.brand img{width:28px;height:28px}
+.brand-name{font-weight:800}
+.brand-sub{font-size:12px;color:var(--muted)}
+.sidebar nav{display:flex;flex-direction:column;gap:6px}
+.sidebar a{padding:10px 12px;border:1px solid transparent;border-radius:10px;color:#0f172a}
+.sidebar a.active{background:#eef2ff;border-color:#c7d2fe;color:#312e81;font-weight:600}
+
+.topbar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border);
+  padding:10px 16px 0 calc(var(--sidebar) + 16px);}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between}
+.crumb{font-weight:600}.crumb.muted{margin-left:10px;color:var(--muted);font-weight:400}
+
+.container{padding:16px 16px 24px calc(var(--sidebar) + 16px);max-width:1240px}
+.footer{padding:16px 0 32px calc(var(--sidebar) + 16px);color:var(--muted);font-size:12px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card + .card{margin-top:14px}
+.card-title-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+
+.table{width:100%;border-collapse:separate;border-spacing:0;margin-top:8px}
+.table th,.table td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left}
+.table th{font-size:12px;color:var(--muted);font-weight:600}
+.table tr:last-child td{border-bottom:0}
+
+.toolbar{display:flex;align-items:center;gap:10px}
+.spacer{flex:1}
+.grow{flex:1}
+
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.col-span-3{grid-column:1/-1}
+@media(max-width:900px){ .grid-3{grid-template-columns:1fr} }
+
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin-bottom:10px}
+.tab{background:#fff;border:1px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;padding:8px 12px;cursor:pointer}
+.tab.active{background:#eef2ff;border-color:#c7d2fe;color:#312e81;font-weight:600}
+
+.badge{padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:12px}
+.badge.success{background:#ecfdf5;border-color:#bbf7d0;color:#065f46}
+.badge.warning{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.badge.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+
+.flash{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#fff;margin-bottom:10px}
+.flash.success{border-color:#bbf7d0;background:#ecfdf5}
+.flash.warning{border-color:#fde68a;background:#fffbeb}
+.flash.danger{border-color:#fecaca;background:#fef2f2}
+
+.no-sidebar .container{padding:16px}
+.no-sidebar .footer{padding-left:16px}

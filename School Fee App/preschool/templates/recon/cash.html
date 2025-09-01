@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>Cash Close — {{ today }}</h2>
+  <p>Expected cash from receipts on this date: <b>₹ {{ '%.2f'|format(expected) }}</b></p>
+  <form method="post" class="inline">
+    <input type="date" name="date" value="{{ today }}">
+    <input type="number" name="closing_cash" step="0.01" placeholder="Enter physical cash counted" required>
+    <button class="btn primary">Close & Save</button>
+  </form>
+</div>
+<h3>Recent Cash Counts</h3>
+<table class="table">
+  <thead><tr><th>Date</th><th>Expected</th><th>Counted</th><th>Variance</th><th>By</th></tr></thead>
+  <tbody>{% for c in latest %}<tr><td>{{ c.date }}</td><td>₹ {{ '%.2f'|format(c.expected_cash) }}</td><td>₹ {{ '%.2f'|format(c.closing_cash) }}</td><td>₹ {{ '%.2f'|format(c.variance) }}</td><td>{{ c.approved_by }}</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

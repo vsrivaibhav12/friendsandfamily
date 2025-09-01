@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="card-title-row">
+    <h2>Bank Credits</h2>
+    <form method="post" enctype="multipart/form-data" class="toolbar">
+      <input type="file" name="csv" accept=".csv" required>
+      <button class="btn primary">Upload CSV</button>
+    </form>
+  </div>
+  <p class="muted">CSV columns required: <code>date,amount_net,utr</code> (date in YYYY-MM-DD).</p>
+  <div class="grid-3" style="margin-top:8px">
+    <div class="col-span-3">
+      <label>Map selected credits to settlement batch</label>
+      <select id="batchSel">
+        {% for b in batches %}
+          <option value="{{ b.id }}">{{ b.start_date }} → {{ b.end_date }} • Expected ₹{{ '%.2f'|format(b.expected_net or 0) }} • Status {{ b.status }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <form method="post" id="mapForm">
+    <table class="table" style="margin-top:10px">
+      <thead><tr><th></th><th>Date</th><th>Amount (Net)</th><th>UTR</th></tr></thead>
+      <tbody>
+        {% for c in credits %}
+          <tr>
+            <td><input type="checkbox" name="credit_id" value="{{ c.id }}"></td>
+            <td>{{ c.date }}</td>
+            <td>₹ {{ '%.2f'|format(c.amount_net or 0) }}</td>
+            <td>{{ c.utr or '' }}</td>
+          </tr>
+        {% endfor %}
+        {% if credits|length == 0 %}
+          <tr><td colspan="4" class="muted">No bank credits yet. Upload a CSV.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+    <div class="toolbar">
+      <button class="btn primary" id="mapBtn" type="submit">Map to Selected Batch</button>
+      <a class="btn" href="{{ url_for('recon.home') }}#upi">Back to UPI</a>
+    </div>
+  </form>
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('mapForm');
+  const sel  = document.getElementById('batchSel');
+  form.addEventListener('submit', function(e){
+    if(!sel.value){ e.preventDefault(); alert('Choose a batch first'); return; }
+    form.action = "{{ url_for('recon.settlements_map', batch_id=0) }}".replace('/0/', `/${sel.value}/`);
+  });
+})();
+</script>
+{% endblock %}

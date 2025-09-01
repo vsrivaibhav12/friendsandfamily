@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="toolbar">
+  <form>
+    <input name="q" value="{{ q }}" placeholder="Search admission no./name">
+    <button class="btn primary" type="submit">Search</button>
+    <a class="btn" href="{{ url_for('students.new_student') }}">+ New Student</a>
+  </form>
+</div>
+<div class="card">
+  <div class="card-title-row">
+    <h3>Bulk Import Students</h3>
+    <a class="btn" href="{{ url_for('students.template_students') }}">Download CSV Template</a>
+  </div>
+  <form method="post" action="{{ url_for('students.import_students') }}" enctype="multipart/form-data" class="inline">
+    <input type="file" name="csv" accept=".csv" required>
+    <button class="btn primary">Upload CSV</button>
+  </form>
+  <p class="muted">CSV: admission_no,name,class_name,section,parent_name,phone,email</p>
+</div>
+
+<div class="card">
+  <div class="card-title-row">
+    <h3>Bulk Import Opening Balances</h3>
+    <a class="btn" href="{{ url_for('students.template_opening') }}">Download CSV Template</a>
+  </div>
+  <form method="post" action="{{ url_for('students.import_opening') }}" enctype="multipart/form-data" class="inline">
+    <input type="file" name="csv" accept=".csv" required>
+    <button class="btn primary">Upload CSV</button>
+  </form>
+  <p class="muted">CSV: admission_no,opening_balance,credit_balance</p>
+</div>
+
+<table class="table">
+  <thead><tr><th>Adm No</th><th>Name</th><th>Class</th><th>Parent</th><th>Phone</th><th>Balance</th><th>Credit</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for s in rows %}
+    <tr>
+      <td>{{ s.admission_no }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.class_name }} {{ s.section }}</td>
+      <td>{{ s.parent_name }}</td>
+      <td>{{ s.phone }}</td>
+      <td>₹ {{ '%.2f'|format(s.balance_amount or 0) }}</td>
+      <td>₹ {{ '%.2f'|format(s.credit_balance or 0) }}</td>
+      <td>{% if s.discontinued %}Discontinued{% else %}Active{% endif %}</td>
+      <td>
+        <a class="btn small" href="{{ url_for('students.edit_student', id=s.id) }}">Edit</a>
+        <a class="btn small" href="{{ url_for('fees.plans', student_id=s.id) }}">Fee Plan</a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

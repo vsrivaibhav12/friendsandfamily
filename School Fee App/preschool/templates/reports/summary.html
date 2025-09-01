@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="card-title-row"><h2>Reports – Summary</h2></div>
+
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-label">Students</div>
+      <div class="stat-value">{{ total_students }}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Receivable</div>
+      <div class="stat-value">₹ {{ '%.2f'|format(receivable_sum or 0) }}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Received</div>
+      <div class="stat-value">₹ {{ '%.2f'|format(received_sum or 0) }}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Balance</div>
+      <div class="stat-value">₹ {{ '%.2f'|format(balance_sum or 0) }}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Students Overdue</div>
+      <div class="stat-value">{{ overdue_count }}</div>
+    </div>
+  </div>
+
+  <div class="toolbar" style="margin-top:14px;flex-wrap:wrap">
+    <a class="btn" href="{{ url_for('reports.overdue') }}">Overdue</a>
+    <a class="btn" href="{{ url_for('reports.income') }}">Income by Fee Type</a>
+    <a class="btn" href="{{ url_for('reports.discontinued_collectible') }}">Discontinued &amp; Collectible</a>
+    <a class="btn" href="{{ url_for('reports.discontinued_noncollectible') }}">Discontinued (Non-collectible)</a>
+    <a class="btn" href="{{ url_for('receipts.list_receipts') }}">Receipts (Print)</a>
+  </div>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <div class="card-title-row">
+    <h3>Top Overdue (10)</h3>
+    <a class="btn small" href="{{ url_for('reports.overdue') }}">Full report</a>
+  </div>
+  <table class="table">
+    <thead><tr><th>Adm No</th><th>Name</th><th>Class</th><th>Phone</th><th style="text-align:right">Receivable</th></tr></thead>
+    <tbody>
+      {% for s,bal in top_overdue %}
+      <tr>
+        <td>{{ s.admission_no }}</td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.class_name }} {{ s.section }}</td>
+        <td>{{ s.phone }}</td>
+        <td style="text-align:right">₹ {{ '%.2f'|format(bal) }}</td>
+      </tr>
+      {% endfor %}
+      {% if top_overdue|length == 0 %}
+      <tr><td colspan="5" class="muted">No overdue students.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .stats-grid{display:grid;grid-template-columns:repeat(5,minmax(160px,1fr));gap:10px}
+  .stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:var(--shadow)}
+  .stat-label{font-size:12px;color:#667}
+  .stat-value{font-size:20px;font-weight:700;margin-top:6px}
+  @media (max-width: 900px){ .stats-grid{grid-template-columns:repeat(2,1fr)} }
+</style>
+{% endblock %}

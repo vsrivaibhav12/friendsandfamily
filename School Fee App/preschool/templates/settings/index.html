@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Settings & Master Data</h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>School</h3>
+    <form method="post" action="{{ url_for('settings.set_school') }}" class="grid-3">
+      <div class="col-span-3"><label>School Name</label><input name="school_name" value="{{ school }}" required></div>
+      <button class="btn primary">Save</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Backup</h3>
+    <p class="muted">Last backup: {{ last_backup }}</p>
+    <a class="btn" href="{{ url_for('settings.backup_now') }}">Backup Now</a>
+  </div>
+
+  <div class="card">
+    <h3>Academic Year</h3>
+    <p>Active: <b>{{ ay.name if ay else 'Unset' }}</b></p>
+    <form method="post" action="{{ url_for('settings.year_activate') }}" class="inline">
+      <label>Set Active</label>
+      <input name="name" placeholder="e.g., 2025-26" required>
+      <button class="btn">Activate</button>
+    </form>
+    <form method="post" action="{{ url_for('settings.year_rollover') }}" style="margin-top:8px">
+      <button class="btn primary">Rollover to New Year</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Receipt Numbering</h3>
+    <p class="muted">Preview: <code>{{ fmt_preview }}</code></p>
+    <form method="post" action="{{ url_for('settings.receipt_format') }}" class="grid-3">
+      <div><label>Mode</label>
+        <select name="mode">
+          <option value="auto" {% if number_mode=='auto' %}selected{% endif %}>Auto</option>
+          <option value="manual" {% if number_mode=='manual' %}selected{% endif %}>Manual Override</option>
+        </select>
+      </div>
+      <div><label>Prefix</label><input name="prefix" placeholder="AY"></div>
+      <div><label>Next Seq</label><input name="seq" type="number" value="1" min="1"></div>
+      <button class="btn primary">Save</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>UPI Fee Rules</h3>
+    <table class="table">
+      <thead><tr><th>Name</th><th>Percent</th><th>Flat</th><th>Active</th></tr></thead>
+      <tbody>
+        {% for r in rules %}
+          <tr><td>{{ r.name }}</td><td>{{ r.percent or 0 }}%</td><td>₹ {{ r.flat or 0 }}</td><td>{{ 'Yes' if r.active else 'No' }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <form method="post" action="{{ url_for('settings.upi_rules_save') }}" class="grid-3" style="margin-top:10px">
+      <div><label>Name</label><input name="name" placeholder="Std" required></div>
+      <div><label>Percent (%)</label><input name="percent" type="number" step="0.01" value="2.00"></div>
+      <div><label>Flat (₹)</label><input name="flat" type="number" step="0.01" value="0"></div>
+      <div><label><input type="checkbox" name="active" checked> Active</label></div>
+      <button class="btn primary">Add Rule</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Fee Types</h3>
+    <p class="muted">Manage fee heads.</p>
+    <a class="btn" href="{{ url_for('fees.types') }}">Manage Fee Types</a>
+  </div>
+</div>
+{% endblock %}

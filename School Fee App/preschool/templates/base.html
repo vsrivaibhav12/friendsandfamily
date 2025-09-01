@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ school_name() }} • FeeDesk</title>
+  <link rel="icon" href="{{ url_for('static', filename='logo-feedesk.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body class="{% if not current_user.is_authenticated %}no-sidebar{% endif %}">
+  {% if current_user.is_authenticated %}
+  {% set ep = request.endpoint or '' %}
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='logo-feedesk.svg') }}" alt="FeeDesk">
+      <div class="brand-text">
+        <div class="brand-name">FeeDesk</div>
+        <div class="brand-sub">{{ school_name() }}</div>
+      </div>
+    </div>
+    <nav>
+      <a href="{{ url_for('index') }}" class="{{ 'active' if ep == 'index' else '' }}">Dashboard</a>
+      <a href="{{ url_for('students.list_students') }}" class="{{ 'active' if ep.startswith('students.') else '' }}">Students</a>
+      <a href="{{ url_for('fees.types') }}" class="{{ 'active' if ep.startswith('fees.') else '' }}">Fees</a>
+      <a href="{{ url_for('receipts.list_receipts') }}" class="{{ 'active' if ep.startswith('receipts.') else '' }}">Receipts</a>
+      <a href="{{ url_for('recon.home') }}" class="{{ 'active' if ep.startswith('recon.') else '' }}">Reconciliation</a>
+      <a href="{{ url_for('reports.summary') }}" class="{{ 'active' if ep.startswith('reports.') else '' }}">Reports</a>
+      <div class="nav-sep"></div>
+      <a href="{{ url_for('settings.set_school') }}" class="{{ 'active' if ep.startswith('settings.') else '' }}">Settings</a>
+      <a href="{{ url_for('admin.users') }}" class="{{ 'active' if ep.startswith('admin.') else '' }}">Admin</a>
+      <a href="{{ url_for('auth.logout') }}">Sign out</a>
+    </nav>
+  </aside>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="crumb">{{ school_name() }}</div>
+        <div class="crumb muted">Calendar Year: {{ now().year }}</div>
+      </div>
+      <div class="topbar-right">
+        <a class="btn ghost" href="{{ url_for('settings.set_school') }}">School Settings</a>
+        <!-- fixed: was admin.backup_now -->
+        <a class="btn ghost" href="{{ url_for('admin.backup') }}">Backup</a>
+      </div>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">FeeDesk • Offline / LAN • v0.3.6</footer>
+</body>
+</html>

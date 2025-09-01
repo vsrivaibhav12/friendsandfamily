@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width:420px">
+  <h2>Sign in</h2>
+  <form method="post">
+    <label>Username</label><input name="username" required>
+    <label>Password</label><input type="password" name="password" required>
+    <button class="btn primary">Login</button>
+  </form>
+  <p class="muted">First run? Use <b>owner / owner123</b></p>
+</div>
+{% endblock %}

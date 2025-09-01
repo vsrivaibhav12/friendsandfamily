@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>Fee Plan — {{ s.name }} ({{ s.admission_no }})</h2>
+
+  {% if types|length == 0 %}
+    <p class="muted">No Fee Types found. Create at least one before adding a fee plan.</p>
+    <a class="btn primary" href="{{ url_for('fees.types') }}">Create Fee Types</a>
+  {% else %}
+    <form method="post" class="grid-3">
+      <div>
+        <label>Fee Type</label>
+        <select name="fee_type_id" required>
+          <option value="">-- Select Fee Type --</option>
+          {% for t in types %}
+            <option value="{{ t.id }}">{{ t.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div><label>Amount Total</label><input name="amount_total" type="number" step="0.01" required></div>
+      <div>
+        <label>Schedule</label>
+        <select name="schedule">
+          <option value="term">term</option>
+          <option value="month">month</option>
+          <option value="one-time">one-time</option>
+        </select>
+      </div>
+      <button class="btn primary">Add</button>
+    </form>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>Existing Plans</h3>
+  <table class="table">
+    <thead><tr><th>Fee Type</th><th>Amount</th><th>Schedule</th></tr></thead>
+    <tbody>
+      {% for p in plans %}
+        <tr>
+          <td>{{ p.fee_type.name }}</td>
+          <td>₹ {{ '%.2f'|format(p.amount_total) }}</td>
+          <td>{{ p.schedule }}</td>
+        </tr>
+      {% endfor %}
+      {% if plans|length == 0 %}
+        <tr><td colspan="3" class="muted">No fee plans yet.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

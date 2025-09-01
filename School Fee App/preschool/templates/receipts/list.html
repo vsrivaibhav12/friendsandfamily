@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="card-title-row"><h2>Recent Receipts</h2><a class="btn" href="{{ url_for('receipts.new_receipt') }}">New Receipt</a></div>
+  <table class="table">
+    <thead><tr><th>No</th><th>Date</th><th>Student</th><th>Mode</th><th style="text-align:right">Amount</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.receipt_no }}</td>
+        <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') if r.created_at else '' }}</td>
+        <td>{{ r.student.name if r.student else '' }}</td>
+        <td>{{ r.mode }}</td>
+        <td style="text-align:right">₹ {{ '%.2f'|format(r.amount or 0) }}</td>
+        <td><a class="btn small" href="{{ url_for('receipts.print_receipt', receipt_id=r.id) }}">Print</a></td>
+      </tr>
+      {% endfor %}
+      {% if rows|length == 0 %}
+      <tr><td colspan="6" class="muted">No receipts yet.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>{{ s.name }} — {{ s.admission_no }}</h2>
+  <div class="grid-3">
+    <div class="stat"><div class="icon">📥</div><div><div class="num">₹ {{ '%.2f'|format(receivable) }}</div><div class="muted">Receivable</div></div></div>
+    <div class="stat"><div class="icon">✅</div><div><div class="num">₹ {{ '%.2f'|format(received) }}</div><div class="muted">Received</div></div></div>
+    <div class="stat"><div class="icon">🧾</div><div><div class="num">₹ {{ '%.2f'|format(balance) }}</div><div class="muted">Balance</div></div></div>
+  </div>
+  <p><b>Class:</b> {{ s.class_name }} {{ s.section }} | <b>Parent:</b> {{ s.parent_name }} | <b>Phone:</b> {{ s.phone }}</p>
+</div>
+
+<h3>Payment History</h3>
+<table class="table">
+  <thead><tr><th>No</th><th>Date</th><th>Mode</th><th>Amount</th></tr></thead>
+  <tbody>
+  {% for r in s.receipts %}
+    <tr><td>{{ r.receipt_no }}</td><td>{{ r.created_at.strftime('%Y-%m-%d') }}</td><td>{{ r.mode }}</td><td>₹ {{ '%.2f'|format(r.amount) }}</td></tr>
+  {% endfor %}
+  {% if s.receipts|length == 0 %}
+    <tr><td colspan="4" class="muted">No receipts yet.</td></tr>
+  {% endif %}
+  </tbody>
+</table>
+{% endblock %}

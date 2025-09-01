@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2>Users</h2>
+  <form method="post" class="grid-4">
+    <input name="username" placeholder="username" required>
+    <select name="role"><option>Owner</option><option>Manager</option><option>Cashier</option><option>DataEntry</option></select>
+    <input type="password" name="password" placeholder="password" required>
+    <button class="btn primary">Add</button>
+  </form>
+  <table class="table">
+    <thead><tr><th>Username</th><th>Role</th></tr></thead>
+    <tbody>{% for u in rows %}<tr><td>{{ u.username }}</td><td>{{ u.role }}</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endblock %}

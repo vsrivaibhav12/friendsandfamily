@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="tabs">
+    <button class="tab active" data-tab="cash">Cash</button>
+    <button class="tab" data-tab="upi">UPI Settlements</button>
+  </div>
+  <div class="tab-content" id="tab-cash" style="display:block">
+    <form method="post" action="{{ url_for('recon.cash_submit') }}" class="grid-3">
+      <div>
+        <label>Date</label>
+        <input type="date" name="date" required value="{{ now().strftime('%Y-%m-%d') }}">
+      </div>
+      <div>
+        <label>Cash counted (₹)</label>
+        <input type="number" name="amount_counted" step="0.01" required>
+      </div>
+      <div>
+        <label>Notes</label>
+        <input type="text" name="notes" placeholder="optional">
+      </div>
+      <div class="col-span-3">
+        <button class="btn">Save Cash Reconciliation</button>
+      </div>
+    </form>
+
+    <h3 style="margin-top:14px">Recent Cash Counts</h3>
+    <table class="table">
+      <thead><tr><th>Date</th><th style="text-align:right">Expected (Cash receipts)</th><th style="text-align:right">Counted</th><th style="text-align:right">Variance</th></tr></thead>
+      <tbody>
+        {% for r in cash_rows %}
+        <tr>
+          <td>{{ r.date }}</td>
+          <td style="text-align:right">₹ {{ '%.2f'|format(r.expected or 0) }}</td>
+          <td style="text-align:right">₹ {{ '%.2f'|format(r.amount_counted or 0) }}</td>
+          <td style="text-align:right">₹ {{ '%.2f'|format(r.variance or 0) }}</td>
+        </tr>
+        {% endfor %}
+        {% if cash_rows|length == 0 %}
+        <tr><td colspan="4" class="muted">No entries yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tab-content" id="tab-upi" style="display:none">
+    <form method="post" action="{{ url_for('recon.settlements_new') }}" class="grid-3">
+      <div>
+        <label>Start date</label>
+        <input type="date" name="start" required>
+      </div>
+      <div>
+        <label>Days grouped by bank</label>
+        <input type="number" name="days" min="1" value="2" required>
+      </div>
+      <div>
+        <label>Fee rule (optional)</label>
+        <select name="rule_id">
+          <option value="">-- none --</option>
+          {% for r in rules %}<option value="{{ r.id }}">{{ r.name }}</option>{% endfor %}
+        </select>
+        {% if rules|length == 0 %}
+          <div class="muted" style="font-size:12px;margin-top:4px">No fee rules found. You can still override below.</div>
+        {% endif %}
+      </div>
+      <div>
+        <label>Override % charges (optional)</label>
+        <input type="number" name="override_percent" step="0.01" placeholder="eg 1.5">
+      </div>
+      <div>
+        <label>Override flat charges (₹)</label>
+        <input type="number" name="override_flat" step="0.01" placeholder="eg 10.00">
+      </div>
+      <div>
+        <label>Bank statement amount received (₹)</label>
+        <input type="number" name="bank_amount" step="0.01" required>
+      </div>
+      <div class="col-span-3">
+        <button class="btn">Save UPI Settlement</button>
+      </div>
+    </form>
+
+    <h3 style="margin-top:14px">Recent UPI Settlements</h3>
+    <table class="table">
+      <thead><tr>
+        <th>Period</th><th>Grouping</th><th style="text-align:right">Gross</th>
+        <th style="text-align:right">Charges</th><th style="text-align:right">Expected Net</th>
+        <th style="text-align:right">Bank Net</th><th style="text-align:right">Variance</th>
+      </tr></thead>
+      <tbody>
+        {% for b in batches %}
+        <tr>
+          <td>{{ b.start_date }} → {{ b.end_date }}</td>
+          <td>{{ b.days_grouping }} day(s)</td>
+          <td style="text-align:right">₹ {{ '%.2f'|format(b.gross or 0) }}</td>
+          <td style="text-align:right">₹ {{ '%.2f'|format(b.charges or 0) }}</td>
+          <td style="text-align:right">₹ {{ '%.2f'|format(b.expected_net or 0) }}</td>
+          <td style="text-align:right">₹ {{ '%.2f'|format(b.bank_net or 0) }}</td>
+          <td style="text-align:right">
+            <span class="badge {% if (b.variance or 0) == 0 %}success{% elif (b.variance or 0) > 0 %}warning{% else %}danger{% endif %}">
+              ₹ {{ '%.2f'|format(b.variance or 0) }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+        {% if batches|length == 0 %}
+        <tr><td colspan="7" class="muted">No UPI settlements yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+// Simple tabs
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const t = btn.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    document.getElementById('tab-' + t).style.display = 'block';
+  });
+});
+// Hash deep-link support (#upi / #cash)
+if (location.hash) {
+  const target = document.querySelector(`.tab[data-tab="${location.hash.substring(1)}"]`);
+  if (target) target.click();
+}
+</script>
+{% endblock %}

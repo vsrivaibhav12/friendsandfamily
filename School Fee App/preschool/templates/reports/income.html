@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="card-title-row">
+    <h2>Income by Fee Type</h2>
+    <div class="row-actions">
+      <a class="btn" href="{{ url_for('reports.income_csv') }}">Export CSV</a>
+      <button class="btn" onclick="window.print()">Print</button>
+    </div>
+  </div>
+
+  <form class="toolbar" method="get" action="{{ url_for('reports.income') }}">
+    <div>
+      <label>From</label><input type="date" name="from" value="{{ date_from or '' }}">
+    </div>
+    <div>
+      <label>To</label><input type="date" name="to" value="{{ date_to or '' }}">
+    </div>
+    <div style="align-self:end">
+      <button class="btn">Filter</button>
+    </div>
+  </form>
+
+  <table class="table">
+    <thead><tr><th>Fee Type</th><th style="text-align:right">Amount</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+        <tr><td>{{ r.fee_name }}</td><td style="text-align:right">₹ {{ '%.2f'|format(r.amount or 0) }}</td></tr>
+      {% endfor %}
+      {% if rows|length == 0 %}
+      <tr><td colspan="2" class="muted">No data for the selected period.</td></tr>
+      {% endif %}
+    </tbody>
+    <tfoot><tr><td>Total</td><td style="text-align:right">₹ {{ '%.2f'|format(total or 0) }}</td></tr></tfoot>
+  </table>
+</div>
+{% endblock %}

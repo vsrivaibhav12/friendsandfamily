@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="toolbar"><a class="btn" href="{{ url_for('admin.backup') }}">Create Backup</a></div>
+<table class="table">
+  <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Table</th><th>Record</th><th>Reason</th></tr></thead>
+  <tbody>{% for a in rows %}<tr><td>{{ a.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td><td>{{ a.actor }}</td><td>{{ a.action }}</td><td>{{ a.table }}</td><td>{{ a.record_id }}</td><td>{{ a.reason }}</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}
