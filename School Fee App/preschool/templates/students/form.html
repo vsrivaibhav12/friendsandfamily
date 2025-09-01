@@ -2,7 +2,7 @@
 {% block content %}
 <div class="card">
   <h2>{{ 'Edit' if s else 'New' }} Student</h2>
-  <form method="post">
+  <form method="post" data-dirty-guard>
     <div class="grid-4">
       <div><label>Admission No</label><input name="admission_no" value="{{ s.admission_no if s else '' }}" required></div>
       <div><label>Name</label><input name="name" value="{{ s.name if s else '' }}" required></div>

@@ -6,6 +6,18 @@
       : document.addEventListener("DOMContentLoaded", fn);
 
   onReady(() => {
+    // ADDED: Initialize DataTables on any table with the .datatable class
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+      $('.datatable').DataTable({
+        "pageLength": 25, // Show 25 entries per page by default
+        "order": [],      // Disable the default initial sorting
+        "language": {
+            "search": "", // Remove search label
+            "searchPlaceholder": "Search records..."
+        }
+      });
+    }
+
     // ---------------- Tabs (data-tab + .tab-content with id="tab-<name>")
     document.querySelectorAll(".tabs").forEach((container) => {
       const tabs = container.querySelectorAll(".tab");
@@ -33,7 +45,7 @@
       if (target) target.click();
     }
 
-    // ---------------- Flash auto-hide
+    // ---------------- Flash auto-hide (Note: This is no longer needed with Toastr, but is harmless)
     setTimeout(() => {
       document.querySelectorAll(".flash").forEach((el) => {
         el.classList.add("fadeout");

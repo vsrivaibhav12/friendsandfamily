@@ -6,7 +6,8 @@
   <title>{{ school_name() }} • FeeDesk</title>
   <link rel="icon" href="{{ url_for('static', filename='logo-feedesk.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 <body class="{% if not current_user.is_authenticated %}no-sidebar{% endif %}">
   {% if current_user.is_authenticated %}
@@ -27,7 +28,7 @@
       <a href="{{ url_for('recon.home') }}" class="{{ 'active' if ep.startswith('recon.') else '' }}">Reconciliation</a>
       <a href="{{ url_for('reports.summary') }}" class="{{ 'active' if ep.startswith('reports.') else '' }}">Reports</a>
       <div class="nav-sep"></div>
-      <a href="{{ url_for('settings.set_school') }}" class="{{ 'active' if ep.startswith('settings.') else '' }}">Settings</a>
+      <a href="{{ url_for('settings.index') }}" class="{{ 'active' if ep.startswith('settings.') else '' }}">Settings</a>
       <a href="{{ url_for('admin.users') }}" class="{{ 'active' if ep.startswith('admin.') else '' }}">Admin</a>
       <a href="{{ url_for('auth.logout') }}">Sign out</a>
     </nav>
@@ -39,8 +40,7 @@
         <div class="crumb muted">Calendar Year: {{ now().year }}</div>
       </div>
       <div class="topbar-right">
-        <a class="btn ghost" href="{{ url_for('settings.set_school') }}">School Settings</a>
-        <!-- fixed: was admin.backup_now -->
+        <a class="btn ghost" href="{{ url_for('settings.index') }}">School Settings</a>
         <a class="btn ghost" href="{{ url_for('admin.backup') }}">Backup</a>
       </div>
     </div>
@@ -48,16 +48,30 @@
   {% endif %}
 
   <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+    {# REMOVED: The old flash message block is gone from here. #}
     {% block content %}{% endblock %}
   </main>
 
   <footer class="footer">FeeDesk • Offline / LAN • v0.3.6</footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+  <script>
+    toastr.options = {
+      "positionClass": "toast-bottom-right",
+      "preventDuplicates": true,
+      "timeOut": "3500",
+    };
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          toastr['{{ category }}']('{{ message }}');
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </script>
 </body>
 </html>

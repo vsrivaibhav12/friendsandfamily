@@ -13,7 +13,7 @@ from .admin import admin_bp
 from .refunds import refunds_bp
 from .settings import settings_bp
 from .dbfix import ensure_schema
-from .utils import ensure_default_dirs, school_name
+from .utils import ensure_default_dirs, school_name, next_receipt_no
 
 def create_app():
     app = Flask(
@@ -31,7 +31,8 @@ def create_app():
     with app.app_context():
         from .models import User
         db.create_all()
-        ensure_schema()
+        # MODIFIED: Passed the 'db' object to the function
+        ensure_schema(db)
         # seed default owner
         if not User.query.filter_by(username="owner").first():
             u = User(username="owner", full_name="Owner", role="Owner")
@@ -42,8 +43,8 @@ def create_app():
     # Inject handy template helpers
     @app.context_processor
     def inject_helpers():
-        from .utils import now, school_name, receipt_next_number
-        return dict(now=now, school_name=school_name, receipt_next_number=receipt_next_number)
+        from .utils import now
+        return dict(now=now, school_name=school_name, receipt_next_number=next_receipt_no)
 
     # Blueprints
     app.register_blueprint(auth_bp)
@@ -59,18 +60,18 @@ def create_app():
     @app.route("/")
     @login_required
     def index():
-        # card KPIs
-        from .models import Student, Receipt, ReceiptItem
+        from .models import Student, StudentFee, Receipt
+        from .utils import D
         from sqlalchemy import func
-        receivable = 0
-        for s in Student.query.all():
-            receivable += s.total_receivable()
-        received = db.session.query(func.coalesce(func.sum(Receipt.amount), 0)).scalar() or 0
+        
+        receivable = db.session.query(func.sum(StudentFee.amount)).scalar() or D(0)
+        received = db.session.query(func.coalesce(func.sum(Receipt.amount), 0)).scalar() or D(0)
         balance = receivable - received
-        # top overdue
+        
         top = [(s, s.balance()) for s in Student.query.all() if s.balance() > 0]
         top.sort(key=lambda x: x[1], reverse=True)
         top = top[:10]
+        
         return render_template("dashboard.html",
                                receivable=receivable,
                                received=received,

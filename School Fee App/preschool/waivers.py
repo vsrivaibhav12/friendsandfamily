@@ -1,3 +1,4 @@
+# preschool/waivers.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from .extensions import db
@@ -13,10 +14,16 @@ def list_create():
     students = Student.query.order_by(Student.name.asc()).all()
     types = FeeType.query.order_by(FeeType.name.asc()).all()
     if request.method == 'POST':
-        student_id = int(request.form['student_id'])
-        fee_type_id = int(request.form['fee_type_id'])
-        amount = D(request.form.get('amount') or 0)
-        percent = D(request.form.get('percent') or 0)
+        try:
+            # ADDED: Input validation
+            student_id = int(request.form['student_id'])
+            fee_type_id = int(request.form['fee_type_id'])
+            amount = D(request.form.get('amount') or 0)
+            percent = D(request.form.get('percent') or 0)
+        except (ValueError, TypeError):
+            flash('Invalid input. Please check the numbers you entered.', 'danger')
+            return redirect(url_for('waivers.list_create'))
+
         reason = request.form.get('reason','')
         w = Waiver(student_id=student_id, fee_type_id=fee_type_id, amount=amount, percent=percent, reason=reason)
         db.session.add(w); db.session.commit()

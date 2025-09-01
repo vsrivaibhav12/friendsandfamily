@@ -12,7 +12,11 @@
     </div>
     <div class="col-span-3">
       <label>Students</label>
-      <div class="list-grid">
+      <div class="list-grid" data-select-scope>
+        <label class="checkrow" style="background: #f0f0f0;">
+          <input type="checkbox" data-select-all>
+          <span><b>Select / Deselect All</b></span>
+        </label>
         {% for s in students %}
         <label class="checkrow">
           <input type="checkbox" name="student_ids" value="{{ s.id }}">

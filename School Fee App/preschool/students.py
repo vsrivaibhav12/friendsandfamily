@@ -1,10 +1,12 @@
+# preschool/students.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, make_response
 from flask_login import login_required, current_user
 from datetime import datetime, date
 from .extensions import db
 from .models import Student
 from .security import role_required, audit
-from .utils import D, receivable_for_student, received_for_student, balance_for_student
+# MODIFIED: Removed 'balance_for_student' from this line as it's no longer in utils
+from .utils import D, receivable_for_student, received_for_student
 import csv, io
 
 students_bp = Blueprint('students', __name__)
@@ -58,13 +60,12 @@ def new_student():
             parent_name=request.form.get('parent_name'),
             phone=request.form.get('phone'),
             email=request.form.get('email'),
-            discontinued=('discontinued' in request.form),
-            collectible_after_discontinue=('collectible_after_discontinue' in request.form),
-            discontinued_date=parse_iso_date(request.form.get('discontinued_date')),
+            discontinued=parse_iso_date(request.form.get('discontinued_date')),
+            collectible=('collectible' in request.form),
         )
         db.session.add(s)
         db.session.commit()
-        audit(current_user.username, 'CREATE', 'student', s.id, {}, {'name': s.name})
+        audit(actor=current_user.username, action='CREATE', table='student', record_id=s.id, before={}, after={'name': s.name})
         flash('Student added', 'success')
         return redirect(url_for('students.list_students'))
     return render_template('students/form.html', s=None)
@@ -77,9 +78,8 @@ def edit_student(id):
         before = {
             'name': s.name,
             'admission_no': s.admission_no,
-            'discontinued': s.discontinued,
-            'collectible_after_discontinue': s.collectible_after_discontinue,
-            'discontinued_date': str(s.discontinued_date) if s.discontinued_date else None,
+            'discontinued': str(s.discontinued) if s.discontinued else None,
+            'collectible': s.collectible,
         }
         s.admission_no = request.form['admission_no']
         s.name = request.form['name']
@@ -88,20 +88,20 @@ def edit_student(id):
         s.parent_name = request.form.get('parent_name')
         s.phone = request.form.get('phone')
         s.email = request.form.get('email')
-        s.discontinued = ('discontinued' in request.form)
-        s.collectible_after_discontinue = ('collectible_after_discontinue' in request.form)
-        s.discontinued_date = parse_iso_date(request.form.get('discontinued_date'))
+        s.discontinued = parse_iso_date(request.form.get('discontinued_date'))
+        s.collectible = ('collectible' in request.form)
         db.session.commit()
-        audit(current_user.username, 'UPDATE', 'student', s.id, before, {
+        after = {
             'name': s.name,
             'admission_no': s.admission_no,
-            'discontinued': s.discontinued,
-            'collectible_after_discontinue': s.collectible_after_discontinue,
-            'discontinued_date': str(s.discontinued_date) if s.discontinued_date else None,
-        })
+            'discontinued': str(s.discontinued) if s.discontinued else None,
+            'collectible': s.collectible,
+        }
+        audit(actor=current_user.username, action='UPDATE', table='student', record_id=s.id, before=before, after=after)
         flash('Updated', 'success')
         return redirect(url_for('students.list_students'))
     return render_template('students/form.html', s=s)
+
 
 @students_bp.route('/import', methods=['POST'])
 @role_required(['Owner', 'Manager'])
@@ -131,7 +131,7 @@ def import_students():
             db.session.add(s)
             count += 1
         db.session.commit()
-        audit(current_user.username, 'IMPORT', 'student', '-', {}, {'count': count})
+        audit(actor=current_user.username, action='IMPORT', table='student', record_id='-', before={}, after={'count': count})
         flash(f'Imported {count} students', 'success')
     except Exception as e:
         flash(f'Import failed: {e}', 'danger')

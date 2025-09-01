@@ -1,3 +1,4 @@
+# preschool/admin.py
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import current_user
 from .extensions import db
@@ -15,7 +16,10 @@ def users():
         if User.query.filter_by(username=username).first():
             flash('Username exists','warning'); return redirect(url_for('admin.users'))
         u = User(username=username, role=role, full_name=username.title()); u.set_password(pwd)
-        db.session.add(u); db.session.commit(); audit(current_user.username,'CREATE','user',u.id,{}, {'role':role})
+        db.session.add(u)
+        db.session.commit()
+        # MODIFIED: Made audit call consistent with keyword arguments
+        audit(actor=current_user.username, action='CREATE', table='user', record_id=u.id, before={}, after={'role':role})
         flash('User created','success'); return redirect(url_for('admin.users'))
     rows = User.query.order_by(User.username.asc()).all()
     return render_template('admin/users.html', rows=rows)
@@ -29,4 +33,10 @@ def audit_log():
 @admin_bp.route('/backup')
 @role_required(['Owner'])
 def backup():
-    path = backup_sqlite(); flash(f'Backup created at {path}','success'); return redirect(url_for('admin.audit_log'))
+    path = backup_sqlite()
+    if "Error" in path:
+        flash(path, 'danger')
+    else:
+        flash(f'Backup created at {path}', 'success')
+    # MODIFIED: Redirect to settings page for better UX
+    return redirect(url_for('settings.index'))
