@@ -16,11 +16,12 @@ from .dbfix import ensure_schema
 from .utils import ensure_default_dirs, school_name, next_receipt_no
 
 def create_app():
+    # MODIFIED: Changed how the Flask app is created to be more explicit.
+    # We now use the package name 'preschool' directly.
     app = Flask(
-        __name__,
+        "preschool",
         template_folder="templates",
-        static_folder="static",
-        static_url_path="/static"
+        static_folder="static"
     )
     app.config.from_object('config.Config')
 
@@ -31,7 +32,6 @@ def create_app():
     with app.app_context():
         from .models import User
         db.create_all()
-        # MODIFIED: Passed the 'db' object to the function
         ensure_schema(db)
         # seed default owner
         if not User.query.filter_by(username="owner").first():
